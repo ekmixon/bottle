@@ -7,7 +7,7 @@ class TestConfDict(unittest.TestCase):
     def test_isadict(self):
         """ ConfigDict should behaves like a normal dict. """
         # It is a dict-subclass, so this kind of pointless, but it doen't hurt.
-        d, m = dict(), ConfigDict()
+        d, m = {}, ConfigDict()
         d['key'], m['key'] = 'value', 'value'
         d['k2'], m['k2'] = 'v1', 'v1'
         d['k2'], m['k2'] = 'v2', 'v2'
@@ -16,7 +16,7 @@ class TestConfDict(unittest.TestCase):
         self.assertEqual(d.get('key'), m.get('key'))
         self.assertEqual(d.get('cay'), m.get('cay'))
         self.assertEqual(list(iter(d)), list(iter(m)))
-        self.assertEqual([k for k in d], [k for k in m])
+        self.assertEqual(list(d), list(m))
         self.assertEqual(len(d), len(m))
         self.assertEqual('key' in d, 'key' in m)
         self.assertEqual('cay' in d, 'cay' in m)
@@ -81,7 +81,7 @@ class TestConfDict(unittest.TestCase):
         self.assertEqual('value', c[key])
         c = ConfigDict()
         c.load_dict({key: {'subkey': 'value'}})
-        self.assertEqual('value', c[key + '.subkey'])
+        self.assertEqual('value', c[f'{key}.subkey'])
 
     def test_load_module(self):
         c = ConfigDict()
@@ -165,25 +165,30 @@ class TestConfDict(unittest.TestCase):
 
 class TestINIConfigLoader(unittest.TestCase):
     @classmethod
-    def setUpClass(self):
-        self.config_file = tempfile.NamedTemporaryFile(suffix='.example.ini',
-                                                       delete=True)
-        self.config_file.write(b'[DEFAULT]\n'
-                               b'default: 45\n'
-                               b'[bottle]\n'
-                               b'port = 8080\n'
-                               b'[ROOT]\n'
-                               b'namespace.key = test\n'
-                               b'[NameSpace.Section]\n'
-                               b'sub.namespace.key = test2\n'
-                               b'default = otherDefault\n'
-                               b'[compression]\n'
-                               b'status=single\n')
-        self.config_file.flush()
+    def setUpClass(cls):
+        cls.config_file = tempfile.NamedTemporaryFile(
+            suffix='.example.ini', delete=True
+        )
+
+        cls.config_file.write(
+            b'[DEFAULT]\n'
+            b'default: 45\n'
+            b'[bottle]\n'
+            b'port = 8080\n'
+            b'[ROOT]\n'
+            b'namespace.key = test\n'
+            b'[NameSpace.Section]\n'
+            b'sub.namespace.key = test2\n'
+            b'default = otherDefault\n'
+            b'[compression]\n'
+            b'status=single\n'
+        )
+
+        cls.config_file.flush()
 
     @classmethod
-    def tearDownClass(self):
-        self.config_file.close()
+    def tearDownClass(cls):
+        cls.config_file.close()
 
     def test_load_config(self):
         c = ConfigDict()

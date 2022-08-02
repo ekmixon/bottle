@@ -170,7 +170,7 @@ class TestPluginAPI(tools.ServerTestBase):
         super(TestPluginAPI, self).setUp()
         @self.app.route('/', test='plugin.cfg')
         def test(**args):
-            return ', '.join('%s:%s' % (k,v) for k,v in args.items())
+            return ', '.join(f'{k}:{v}' for k,v in args.items())
 
     def test_callable(self):
         def plugin(func):

@@ -15,7 +15,7 @@ class TestMultiDict(unittest.TestCase):
         self.assertEqual(d.get('key'), m.get('key'))
         self.assertEqual(d.get('cay'), m.get('cay'))
         self.assertEqual(list(iter(d)), list(iter(m)))
-        self.assertEqual([k for k in d], [k for k in m])
+        self.assertEqual(list(d), list(m))
         self.assertEqual(len(d), len(m))
         self.assertEqual('key' in d, 'key' in m)
         self.assertEqual('cay' in d, 'cay' in m)

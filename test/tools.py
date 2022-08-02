@@ -83,10 +83,7 @@ def api(introduced, deprecated=None, removed=None):
 
 
 def wsgistr(s):
-    if py3k:
-        return s.encode('utf8').decode('latin1')
-    else:
-        return s
+    return s.encode('utf8').decode('latin1') if py3k else s
 
 class ServerTestBase(unittest.TestCase):
     def setUp(self):
@@ -104,10 +101,11 @@ class ServerTestBase(unittest.TestCase):
             for name, value in header:
                 name = name.title()
                 if name in result['header']:
-                    result['header'][name] += ', ' + value
+                    result['header'][name] += f', {value}'
                 else:
                     result['header'][name] = value
-        env = env if env else {}
+
+        env = env or {}
         wsgiref.util.setup_testing_defaults(env)
         env['REQUEST_METHOD'] = wsgistr(method.upper().strip())
         env['PATH_INFO'] = wsgistr(path)
@@ -160,10 +158,13 @@ class ServerTestBase(unittest.TestCase):
 
 def multipart_environ(fields, files):
     boundary = str(uuid.uuid1())
-    env = {'REQUEST_METHOD':'POST',
-           'CONTENT_TYPE':  'multipart/form-data; boundary='+boundary}
+    env = {
+        'REQUEST_METHOD': 'POST',
+        'CONTENT_TYPE': f'multipart/form-data; boundary={boundary}',
+    }
+
     wsgiref.util.setup_testing_defaults(env)
-    boundary = '--' + boundary
+    boundary = f'--{boundary}'
     body = ''
     for name, value in fields:
         body += boundary + '\n'

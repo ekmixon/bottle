@@ -49,7 +49,7 @@ class TestJinja2Template(unittest.TestCase):
         """Templates: jinja2 custom tests """
         from bottle import jinja2_template as template
         TEMPL = touni("{% if var is even %}gerade{% else %}ungerade{% endif %}")
-        settings = dict(tests={"even": lambda x: False if x % 2 else True})
+        settings = dict(tests={"even": lambda x: not x % 2})
         t = Jinja2Template(TEMPL, **settings)
         self.assertEqual("gerade", t.render(var=2))
         self.assertEqual("ungerade", t.render(var=1))

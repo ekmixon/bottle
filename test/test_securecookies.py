@@ -22,7 +22,7 @@ class TestSignedCookies(unittest.TestCase):
                 yield key.lower().strip(), value.strip()
 
     def set_pairs(self, pairs):
-        header = ','.join(['%s=%s' % (k, v) for k, v in pairs])
+        header = ','.join([f'{k}={v}' for k, v in pairs])
         bottle.request.bind({'HTTP_COOKIE': header})
 
     def testValid(self):
@@ -35,7 +35,7 @@ class TestSignedCookies(unittest.TestCase):
     def testWrongKey(self):
         bottle.response.set_cookie('key', self.data, secret=self.secret)
         pairs = self.get_pairs()
-        self.set_pairs([(k + 'xxx', v) for (k, v) in pairs])
+        self.set_pairs([(f'{k}xxx', v) for (k, v) in pairs])
         result = bottle.request.get_cookie('key', secret=self.secret)
         self.assertEqual(None, result)
 

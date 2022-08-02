@@ -243,7 +243,7 @@ class TestSTPLDir(unittest.TestCase):
         lines = string.splitlines(True)
         if not lines: return string
         if not lines[0].strip(): lines.pop(0)
-        whitespace = re.match('([ \t]*)', lines[0]).group(0)
+        whitespace = re.match('([ \t]*)', lines[0])[0]
         if not whitespace: return string
         for i in range(len(lines)):
             lines[i] = lines[i][len(whitespace):]

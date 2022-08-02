@@ -12,7 +12,7 @@ extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx',
               'sphinx.ext.viewcode']
 master_doc = 'index'
 project = u'Bottle'
-copyright = u'2009-%s, %s' % (time.strftime('%Y'), bottle.__author__)
+copyright = f"2009-{time.strftime('%Y')}, {bottle.__author__}"
 version = ".".join(bottle.__version__.split(".")[:2])
 release = bottle.__version__
 add_function_parentheses = True

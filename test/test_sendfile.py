@@ -45,7 +45,7 @@ class TestDateParser(unittest.TestCase):
 
 class TestSendFile(unittest.TestCase):
     def setUp(self):
-        e = dict()
+        e = {}
         wsgiref.util.setup_testing_defaults(e)
         b = Bottle()
         request.bind(e)

@@ -44,21 +44,22 @@ class TestServer(unittest.TestCase):
             cmd += sys.argv[1:] # pass cmdline arguments to subprocesses
             self.p = Popen(cmd, stdout=PIPE, stderr=PIPE)
             # Wait for the socket to accept connections
-            for i in range(100):
+            for _ in range(100):
                 time.sleep(0.1)
                 # Accepts connections?
                 if ping('127.0.0.1', port): return
                 # Server died for some reason...
-                if not self.p.poll() is None: break
+                if self.p.poll() is not None: break
             rv = self.p.poll()
             if rv is None:
                 raise AssertionError("Server took too long to start up.")
-            if rv == 128: # Import error
-                if os.environ.get('CI') != 'true' or \
-                        os.environ.get('TRAVIS_PYTHON_VERSION') not in ('2.7', '3.6'):
-                    tools.warn("Skipping %r test (ImportError)." % self.server)
-                    self.skip = True
-                    return
+            if rv == 128 and (
+                os.environ.get('CI') != 'true'
+                or os.environ.get('TRAVIS_PYTHON_VERSION') not in ('2.7', '3.6')
+            ):
+                tools.warn("Skipping %r test (ImportError)." % self.server)
+                self.skip = True
+                return
             if rv == 3: # Port in use
                 continue
             raise AssertionError("Server exited with error code %d" % rv)
@@ -67,13 +68,13 @@ class TestServer(unittest.TestCase):
     def tearDown(self):
         if self.skip: return
 
-        if self.p.poll() == None:
+        if self.p.poll() is None:
             os.kill(self.p.pid, signal.SIGINT)
             time.sleep(0.5)
-        if self.p.poll() == None:
+        if self.p.poll() is None:
             os.kill(self.p.pid, signal.SIGTERM)
             time.sleep(0.5)
-        while self.p.poll() == None:
+        while self.p.poll() is None:
             tools.warn("Trying to kill server %r with pid %d." %
                        (self.server, self.p.pid))
             os.kill(self.p.pid, signal.SIGKILL)
@@ -116,6 +117,6 @@ else:
 
 
 for name in set(server_names) - set(blacklist):
-    classname = 'TestServerAdapter_'+name
+    classname = f'TestServerAdapter_{name}'
     setattr(sys.modules[__name__], classname,
             type(classname, (TestServer,), {'server': name}))

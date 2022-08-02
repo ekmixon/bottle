@@ -7,7 +7,7 @@ class TestImportHooks(unittest.TestCase):
 
     def make_module(self, name, **args):
         mod = sys.modules.setdefault(name, imp.new_module(name))
-        mod.__file__ = '<virtual %s>' % name
+        mod.__file__ = f'<virtual {name}>'
         mod.__dict__.update(**args)
         return mod
 

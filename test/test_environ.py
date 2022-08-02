@@ -21,7 +21,7 @@ class TestRequest(unittest.TestCase):
         e = {}
         r = BaseRequest(e)
         self.assertRaises(RuntimeError, lambda: r.app)
-        e.update({'bottle.app': 5})
+        e['bottle.app'] = 5
         self.assertEqual(r.app, 5)
 
     def test_route_property(self):
@@ -33,7 +33,7 @@ class TestRequest(unittest.TestCase):
         e = {}
         r = BaseRequest(e)
         self.assertRaises(RuntimeError, lambda: r.url_args)
-        e.update({'route.url_args': {'a': 5}})
+        e['route.url_args'] = {'a': 5}
         self.assertEqual(r.url_args, {'a': 5})
 
     def test_path(self):
@@ -148,10 +148,12 @@ class TestRequest(unittest.TestCase):
 
     def test_cookie_dict(self):
         """ Environ: Cookie dict """
-        t = dict()
-        t['a=a']      = {'a': 'a'}
-        t['a=a; b=b'] = {'a': 'a', 'b':'b'}
-        t['a=a; a=b'] = {'a': 'b'}
+        t = {
+            'a=a': {'a': 'a'},
+            'a=a; b=b': {'a': 'a', 'b': 'b'},
+            'a=a; a=b': {'a': 'b'},
+        }
+
         for k, v in t.items():
             request = BaseRequest({'HTTP_COOKIE': k})
             for n in v:
@@ -418,10 +420,10 @@ class TestRequest(unittest.TestCase):
 
     def test_auth(self):
         user, pwd = 'marc', 'secret'
-        basic = touni(base64.b64encode(tob('%s:%s' % (user, pwd))))
+        basic = touni(base64.b64encode(tob(f'{user}:{pwd}')))
         r = BaseRequest({})
         self.assertEqual(r.auth, None)
-        r.environ['HTTP_AUTHORIZATION'] = 'basic %s' % basic
+        r.environ['HTTP_AUTHORIZATION'] = f'basic {basic}'
         self.assertEqual(r.auth, (user, pwd))
         r.environ['REMOTE_USER'] = user
         self.assertEqual(r.auth, (user, pwd))
@@ -776,12 +778,11 @@ class TestResponse(unittest.TestCase):
 class TestRedirect(unittest.TestCase):
 
     def assertRedirect(self, target, result, query=None, status=303, **args):
-        env = {'SERVER_PROTOCOL': 'HTTP/1.1'}
         for key in list(args):
             if key.startswith('wsgi'):
                 args[key.replace('_', '.', 1)] = args[key]
                 del args[key]
-        env.update(args)
+        env = {'SERVER_PROTOCOL': 'HTTP/1.1'} | args
         request.bind(env)
         bottle.response.bind()
         try:
